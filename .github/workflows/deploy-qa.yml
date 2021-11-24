@@ -3,7 +3,6 @@ on:
     push:
         branches:
           - 'develop'
-          - 'hotfix/**'
     pull_request:
         branches:
           - 'release/**'
@@ -11,7 +10,7 @@ jobs:
     deploy-qa:
         environment:
             name: preview
-            url: https://app.logdna.com/273e532689/logs/view?apps=degen-bankless-dao-test
+            url: url-logdna-here
         runs-on: ubuntu-20.04
         steps:
             - uses: actions/checkout@v2
@@ -30,8 +29,8 @@ jobs:
               uses: AkhileshNS/heroku-deploy@v3.12.12
               with:
                   heroku_api_key: ${{secrets.QA_HEROKU_API_KEY}}
-                  heroku_app_name: 'degen-bankless-dao-test'
-                  heroku_email: 'patinobrian@gmail.com'
+                  heroku_app_name: 'heroku-app-name-here'
+                  heroku_email: 'email-here'
                   procfile: 'worker: yarn qa'
               env:
                   HD_DISCORD_BOT_TOKEN: ${{secrets.QA_DISCORD_TOKEN}}
