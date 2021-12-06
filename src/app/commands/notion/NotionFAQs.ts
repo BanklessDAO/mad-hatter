@@ -2,7 +2,7 @@ import { SlashCommand, CommandOptionType, CommandContext, SlashCreator } from 's
 import client from '../../app';
 import RetrieveFAQs from '../../service/notion/RetrieveFAQs';
 import discordServerIds from '../../service/constants/discordServerIds';
-import { LogUtils } from '../../utils/Log';
+import Log, { LogUtils } from '../../utils/Log';
 import ServiceUtils from '../../utils/ServiceUtils';
 const trimPageId = process.env.FAQS_PAGE_ID.replace(/-/g, '');
 const FAQ_URL = `https://www.notion.so/FAQs-${trimPageId}`;
@@ -52,8 +52,9 @@ export default class NotionFAQs extends SlashCommand {
 					const answer = '\n' + faq.answer.trim() + '\n';
 					replyStr = replyStr + question + answer + '\n';
 				});
-				ctx.send(`${ctx.user.mention} Sent you a DM with information.`);
-				return guildMember.send(replyStr.substring(0, 1950));
+				await ctx.send(`${ctx.user.mention} Sent you a DM with information.`).catch(Log.error);
+				await guildMember.send(replyStr.substring(0, 1950)).catch(Log.error);
+				return;
 			} else {
 				// Try to find the answer to the given question
 				const validQuestion = faqQuestion.replace(/[^\w\s]/gi, '');

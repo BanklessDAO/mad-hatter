@@ -26,12 +26,14 @@ export const claimBountyForValidId = async (guildMember: GuildMember,
 
 	if (dbBountyResult.claimedBy && dbBountyResult.status != 'Open') {
 		Log.info(`${bountyId} bounty not open and is claimed by ${dbBountyResult.claimedBy.discordHandle}`);
-		return guildMember.send({ content: `Sorry bounty is not open. ${envUrls.BOUNTY_BOARD_URL}${bountyId}` });
+		await guildMember.send({ content: `Sorry bounty is not open. ${envUrls.BOUNTY_BOARD_URL}${bountyId}` }).catch(Log.error);
+		return;
 	}
 
 	if (dbBountyResult.status != 'Open') {
 		Log.info(`${bountyId} bounty is not open`);
-		return guildMember.send({ content: `Sorry bounty is not Open. ${envUrls.BOUNTY_BOARD_URL}${bountyId}` });
+		await guildMember.send({ content: `Sorry bounty is not Open. ${envUrls.BOUNTY_BOARD_URL}${bountyId}` }).catch(Log.error);
+		return;
 	}
 
 	const currentDate = (new Date()).toISOString();
@@ -55,16 +57,17 @@ export const claimBountyForValidId = async (guildMember: GuildMember,
 
 	if (writeResult.modifiedCount != 1) {
 		Log.error(`failed to update record ${bountyId} with claimed user  <@${guildMember.user.tag}>`);
-		return guildMember.send({ content: 'Sorry something is not working, our devs are looking into it.' });
+		await guildMember.send({ content: 'Sorry something is not working, our devs are looking into it.' }).catch(Log.error);
+		return;
 	}
 
 	const createdByUser: GuildMember = await guildMember.guild.members.fetch(dbBountyResult.createdBy.discordId);
-	await createdByUser.send({ content: ` Bounty has been claimed ${envUrls.BOUNTY_BOARD_URL}${bountyId} Please reach out to <@${guildMember.user.id}> with any questions.` });
+	await createdByUser.send({ content: ` Bounty has been claimed ${envUrls.BOUNTY_BOARD_URL}${bountyId} Please reach out to <@${guildMember.user.id}> with any questions.` }).catch(Log.error);
 
 	Log.info(`${bountyId} bounty claimed by ${guildMember.user.tag}`);
 	await claimBountyMessage(guildMember, dbBountyResult.discordMessageId, message);
-	// await dbInstance.close();
-	return guildMember.send({ content: ` Bounty claimed! If you have any questions, please reach out to <@${createdByUser.id}>. ${envUrls.BOUNTY_BOARD_URL}${bountyId}` });
+	await guildMember.send({ content: ` Bounty claimed! If you have any questions, please reach out to <@${createdByUser.id}>. ${envUrls.BOUNTY_BOARD_URL}${bountyId}` }).catch(Log.error);
+	return;
 };
 
 export const claimBountyMessage = async (guildMember: GuildMember, bountyMessageId: string, message?: Message): Promise<any> => {

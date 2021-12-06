@@ -1,5 +1,4 @@
 import {
-	Channel,
 	Message,
 } from 'discord.js';
 import degenPhrases from '../../service/constants/degenPhrases';

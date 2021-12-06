@@ -208,18 +208,19 @@ export default class Bounty extends SlashCommand {
 			this.handleCommandError(ctx, command);
 		} catch (e) {
 			Log.error(e);
+			ServiceUtils.sendOutErrorMessage(ctx).catch(Log.error);
 		}
 	}
 
 	handleCommandError(ctx: CommandContext, command: Promise<any>): void {
 		command.then(() => {
-			return ctx.send(`${ctx.user.mention} Sent you a DM with information.`);
+			return ctx.send(`${ctx.user.mention} Sent you a DM with information.`).catch(Log.error);
 		}).catch(e => {
 			if (e instanceof ValidationError) {
-				return ctx.send({ content: `${e.message}`, ephemeral: true });
+				return ctx.send({ content: `${e.message}`, ephemeral: true }).catch(Log.error);
 			} else {
 				LogUtils.logError('error', e);
-				return ServiceUtils.sendOutErrorMessage(ctx);
+				return ServiceUtils.sendOutErrorMessage(ctx).catch(Log.error);
 			}
 		});
 	}

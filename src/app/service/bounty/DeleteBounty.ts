@@ -27,19 +27,22 @@ export const deleteBountyForValidId = async (guildMember: GuildMember,
 
 	if (dbBountyResult.status === 'Deleted') {
 		Log.info(`${bountyId} bounty already deleted`);
-		return guildMember.send(`<@${guildMember.user.id}> looks like bounty \`${bountyId}\` is already deleted!`);
+		await guildMember.send(`<@${guildMember.user.id}> looks like bounty \`${bountyId}\` is already deleted!`).catch(Log.error);
+		return;
 	}
 
 	if (!(ServiceUtils.hasRole(guildMember, roleIDs.admin) || dbBountyResult.createdBy.discordId === guildMember.id)) {
 		Log.info(`${guildMember.user.tag} does not have access to delete bounty`);
-		return guildMember.send(`<@${guildMember.user.id}> Sorry you do not have access to delete!`);
+		await guildMember.send(`<@${guildMember.user.id}> Sorry you do not have access to delete!`).catch(Log.error);
+		return;
 	}
 
 	Log.info(`${guildMember.user.tag} is authorized to delete bounties`);
 
 	if (!(dbBountyResult.status === 'Draft' || dbBountyResult.status === 'Open')) {
 		Log.info(`${bountyId} bounty is not open or in draft`);
-		return guildMember.send(`Sorry bounty \`${bountyId}\` is not Open or in Draft.`);
+		await guildMember.send(`Sorry bounty \`${bountyId}\` is not Open or in Draft.`).catch(Log.error);
+		return;
 	}
 
 	const currentDate = (new Date()).toISOString();
@@ -62,12 +65,14 @@ export const deleteBountyForValidId = async (guildMember: GuildMember,
 
 	if (writeResult.modifiedCount != 1) {
 		Log.error(`failed to update record ${bountyId} with claimed user  <@${guildMember.user.id}>`);
-		return guildMember.send({ content: 'Sorry something is not working, our devs are looking into it.' });
+		await guildMember.send({ content: 'Sorry something is not working, our devs are looking into it.' }).catch(Log.error);
+		return;
 	}
 
 	Log.info(`${bountyId} bounty deleted by ${guildMember.user.tag}`);
 	await deleteBountyMessage(guildMember, dbBountyResult.discordMessageId, message);
-	return guildMember.send({ content: `Bounty \`${bountyId}\` deleted, thanks.` });
+	await guildMember.send({ content: `Bounty \`${bountyId}\` deleted, thanks.` }).catch(Log.error);
+	return;
 };
 
 export const deleteBountyMessage = async (guildMember: GuildMember, bountyMessageId: string, message?: Message): Promise<any> => {

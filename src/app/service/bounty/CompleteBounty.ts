@@ -27,12 +27,14 @@ export const completeBountyForValidId = async (guildMember: GuildMember,
 	
 	if (dbBountyResult.createdBy.discordId !== guildMember.user.id) {
 		Log.info(`${bountyId} bounty created by ${guildMember.user.tag} but it is created by ${dbBountyResult.createdBy.discordHandle}`);
-		return guildMember.send({ content: `Sorry <@${guildMember.user.id}>, bounty \`${bountyId}\` is created by someone else.` });
+		await guildMember.send({ content: `Sorry <@${guildMember.user.id}>, bounty \`${bountyId}\` is created by someone else.` }).catch(Log.error);
+		return;
 	}
 
 	if (dbBountyResult.status !== 'In-Review') {
 		Log.info(`${bountyId} bounty not in review`);
-		return guildMember.send({ content: `Sorry <@${guildMember.user.id}>, bounty \`${bountyId}\` is not in review` });
+		await guildMember.send({ content: `Sorry <@${guildMember.user.id}>, bounty \`${bountyId}\` is not in review` }).catch(Log.error);
+		return;
 	}
 
 	const currentDate = (new Date()).toISOString();
@@ -56,11 +58,12 @@ export const completeBountyForValidId = async (guildMember: GuildMember,
 
 	if (writeResult.modifiedCount != 1) {
 		Log.warn(`failed to update record ${bountyId} with reviewer user  <@${guildMember.user.tag}>`);
-		return guildMember.send({ content: 'Sorry something is not working, our devs are looking into it.' });
+		await guildMember.send({ content: 'Sorry something is not working, our devs are looking into it.' }).catch(Log.error);
+		return;
 	}
 	Log.info(`${bountyId} bounty reviewed by ${guildMember.user.tag}`);
 	await completeBountyMessage(guildMember, dbBountyResult.discordMessageId, message);
-	await guildMember.send({ content: `Bounty complete! Please remember to tip <@${dbBountyResult.claimedBy.discordId}>` });
+	await guildMember.send({ content: `Bounty complete! Please remember to tip <@${dbBountyResult.claimedBy.discordId}>` }).catch(Log.error);
 	return;
 };
 

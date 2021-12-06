@@ -23,12 +23,14 @@ export default async (guildMember: GuildMember, bountyId: string, message?: Mess
 	
 	if (!(bounty.status === 'Draft' || bounty.status === 'Open')) {
 		Log.info(`${bountyId} bounty not eligible to be edited`);
-		return guildMember.send({ content: `Sorry bounty is not in draft or open. ${envUrls.BOUNTY_BOARD_URL}${bountyId}` });
+		await guildMember.send({ content: `Sorry bounty is not in draft or open. ${envUrls.BOUNTY_BOARD_URL}${bountyId}` }).catch(Log.error);
+		return;
 	}
 	
 	if (guildMember.user.id !== bounty.createdBy.discordId) {
 		Log.info(`${guildMember.user.tag} is attempting to edit a bounty they did not create`);
-		return guildMember.send({ content: ` Sorry you are not allowed to edit ${envUrls.BOUNTY_BOARD_URL}${bountyId}` });
+		await guildMember.send({ content: ` Sorry you are not allowed to edit ${envUrls.BOUNTY_BOARD_URL}${bountyId}` }).catch(Log.error);
+		return;
 	}
 
 	const bountyResult: UpdateWriteOpResult = await dbCollection.updateOne(bounty, {
@@ -39,8 +41,10 @@ export default async (guildMember: GuildMember, bountyId: string, message?: Mess
 	
 	if (bountyResult.modifiedCount != 1) {
 		Log.info(`bounty ${bountyId} not updated is deleted`);
-		return guildMember.send({ content: 'Sorry something is not working, can you try again?' });
+		await guildMember.send({ content: 'Sorry something is not working, can you try again?' }).catch(Log.error);
+		return;
 	}
 	
-	return guildMember.send({ content: `Bounty can be edited at ${envUrls.BOUNTY_BOARD_URL}${bountyId}/edit?key=${secretEditKey}` });
+	await guildMember.send({ content: `Bounty can be edited at ${envUrls.BOUNTY_BOARD_URL}${bountyId}/edit?key=${secretEditKey}` }).catch(Log.error);
+	return;
 };

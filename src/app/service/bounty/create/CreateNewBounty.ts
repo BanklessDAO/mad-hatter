@@ -23,7 +23,7 @@ export default async (guildMember: GuildMember, params: BountyCreateNew): Promis
 	await BountyUtils.validateTitle(guildMember, title);
 	BountyUtils.validateNumberOfCopies(guildMember, params.copies);
 
-	const workNeededMessage: Message = await guildMember.send({ content: `Hello <@${guildMember.id}>! Can you tell me a description of your bounty?` });
+	const workNeededMessage: Message = await ServiceUtils.tryDMUser(guildMember, `Hello <@${guildMember.id}>! Can you tell me a description of your bounty?`);
 	const dmChannel: DMChannel = await workNeededMessage.channel.fetch() as DMChannel;
 	const replyOptions: AwaitMessagesOptions = {
 		max: 1,
@@ -35,7 +35,7 @@ export default async (guildMember: GuildMember, params: BountyCreateNew): Promis
 	await BountyUtils.validateSummary(guildMember, summary);
 	params.summary = summary;
 
-	await guildMember.send({ content: 'Awesome! Now what is absolutely required for the bounty to be complete?' });
+	await guildMember.send({ content: 'Awesome! Now what is absolutely required for the bounty to be complete?' }).catch(Log.error);
 
 	const criteria = (await dmChannel.awaitMessages(replyOptions)).first().content;
 	await BountyUtils.validateCriteria(guildMember, criteria);
@@ -43,23 +43,24 @@ export default async (guildMember: GuildMember, params: BountyCreateNew): Promis
 
 	if (params.copies > 1) {
 		const totalReward = params.reward.amount * params.copies;
-		await guildMember.send({ content: `Are you sure you want to publish bounties with a \`total\` reward of \`${totalReward} ${params.reward.currencySymbol}\`? (yes/no)` });
+		await guildMember.send({ content: `Are you sure you want to publish bounties with a \`total\` reward of \`${totalReward} ${params.reward.currencySymbol}\`? (yes/no)` }).catch(Log.error);
 		const amountConfirmation: string = (await dmChannel.awaitMessages(replyOptions)).first().content;
 		if (!(amountConfirmation == 'yes' || amountConfirmation == 'YES' || amountConfirmation == 'Y' || amountConfirmation == 'Yes')) {
-			return guildMember.send({ content: 'Ok no problem, bounty deleted.' });
+			await guildMember.send({ content: 'Ok no problem, bounty deleted.' }).catch(Log.error);
+			return;
 		}
 	}
 
 	let convertedDueDateFromMessage: Date;
 	do {
-		await guildMember.send({ content: 'Please enter `UTC` date in format `yyyy-mm-dd`, i.e 2021-08-15`? (no to exit)' });
+		await guildMember.send({ content: 'Please enter `UTC` date in format `yyyy-mm-dd`, i.e 2021-08-15`? (no to exit)' }).catch(Log.error);
 		const dueAtMessage = (await dmChannel.awaitMessages(replyOptions)).first().content;
 		if (dueAtMessage !== 'no') {
 			try {
 				convertedDueDateFromMessage = BountyUtils.validateDate(guildMember, dueAtMessage);
 			} catch(e) {
 				Log.warn('user entered invalid date for bounty');
-				await guildMember.send({ content: 'Please try `UTC` date in format `yyyy-mm-dd`, i.e 2021-08-15' });
+				await guildMember.send({ content: 'Please try `UTC` date in format `yyyy-mm-dd`, i.e 2021-08-15' }).catch(Log.error);
 			}
 		} else if (dueAtMessage === 'no') {
 			convertedDueDateFromMessage = null;
@@ -79,7 +80,8 @@ export default async (guildMember: GuildMember, params: BountyCreateNew): Promis
 	const dbInsertResult = await dbBounty.insertMany(listOfPrepBounties, { ordered: false });
 	if (dbInsertResult == null) {
 		Log.error('failed to insert bounties into DB');
-		return guildMember.send({ content: 'Sorry something is not working, our devs are looking into it.' });
+		await guildMember.send({ content: 'Sorry something is not working, our devs are looking into it.' }).catch(Log.error);
+		return;
 	}
 	Log.info(`user ${guildMember.user.tag} inserted bounty into db`);
 	const listOfBountyIds = Object.values(dbInsertResult.insertedIds).map(String);
@@ -108,14 +110,15 @@ export default async (guildMember: GuildMember, params: BountyCreateNew): Promis
 		}],
 	};
 
-	await guildMember.send('Thank you! Does this look right?');
+	await guildMember.send('Thank you! Does this look right?').catch(Log.error);
 	const message: Message = await guildMember.send(messageOptions);
 
 	await message.react('👍');
 	await message.react('📝');
 	await message.react('❌');
 
-	return handleBountyReaction(message, guildMember, listOfBountyIds);
+	await handleBountyReaction(message, guildMember, listOfBountyIds).catch(Log.error);
+	return;
 };
 
 export const generateBountyRecord = (bountyParams: BountyCreateNew, guildMember: GuildMember): any => {
@@ -168,7 +171,7 @@ const handleBountyReaction = (message: Message, guildMember: GuildMember, bounty
 			Log.info('/bounty create new | :pencil: given');
 			if (bountyIds.length > 1) {
 				// TODO: add support to edit multiple bounties in UI
-				await guildMember.send({ content: 'Sorry, edit not available for multiple bounties' });
+				await guildMember.send({ content: 'Sorry, edit not available for multiple bounties' }).catch(Log.error);
 				for (const bountyId of bountyIds) {
 					await deleteBountyForValidId(guildMember, bountyId);
 				}

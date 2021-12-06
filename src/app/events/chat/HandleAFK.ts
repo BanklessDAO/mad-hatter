@@ -20,7 +20,7 @@ const HandleAFK = async (message: Message): Promise<any> => {
 				}).catch(Log.error);
 				const prettyMessage = PublishAFKMessage(message.author.username, message.content, message.guildId, message.channelId, message.id);
 				
-				guildMember.send({ embeds :[prettyMessage] }).catch(Log.error);
+				guildMember.send({ embeds :[prettyMessage] }).catch(Log.error).catch(Log.error);
 			}
 		} catch (e) {
 			Log.error('failed to handle user mention for AFK');

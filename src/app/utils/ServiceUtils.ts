@@ -6,7 +6,9 @@ import {
 	Collection,
 	DMChannel,
 	Guild,
-	GuildMember, MessageAttachment,
+	GuildMember,
+	Message,
+	MessageAttachment,
 	Permissions,
 	Role,
 	RoleManager,
@@ -296,9 +298,9 @@ const ServiceUtils = {
 		})).first().content;
 	},
 	
-	async tryDMUser(guildMember: GuildMember, message: string): Promise<any> {
+	async tryDMUser(guildMember: GuildMember, message: string): Promise<Message> {
 		try {
-			await guildMember.send({ content: message });
+			return await guildMember.send({ content: message });
 		} catch (e) {
 			LogUtils.logError('DM is turned off', e);
 			throw new ValidationError('I\'m trying to send you a DM... Can you try turning DMs on?');

@@ -80,7 +80,7 @@ const EventsAPI = {
 			if (e.response.status == '400') {
 				await guildMember.send({
 					content: `Hmmm 🤔, this is what I found: ${e.response.data.message}`,
-				});
+				}).catch(Log.error);
 			}
 			throw new Error();
 		}

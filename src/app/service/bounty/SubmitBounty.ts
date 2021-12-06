@@ -35,12 +35,14 @@ export const submitBountyForValidId = async (guildMember: GuildMember,
 	
 	if (dbBountyResult.claimedBy.discordId !== guildMember.user.id) {
 		Log.info(`${bountyId} bounty not claimed by ${guildMember.user.tag} but it is claimed by ${dbBountyResult.claimedBy.discordHandle}`);
-		return guildMember.send({ content: `Sorry <@${guildMember.user.id}>, bounty \`${bountyId}\` is claimed by someone else.` });
+		await guildMember.send({ content: `Sorry <@${guildMember.user.id}>, bounty \`${bountyId}\` is claimed by someone else.` }).catch(Log.error);
+		return;
 	}
 
 	if (dbBountyResult.status !== 'In-Progress') {
 		Log.info(`${bountyId} bounty not in progress`);
-		return guildMember.send({ content: `Sorry <@${guildMember.user.id}>, bounty \`${bountyId}\` is not in progress.` });
+		await guildMember.send({ content: `Sorry <@${guildMember.user.id}>, bounty \`${bountyId}\` is not in progress.` }).catch(Log.error);
+		return;
 	}
 
 	const currentDate = (new Date()).toISOString();
@@ -66,7 +68,8 @@ export const submitBountyForValidId = async (guildMember: GuildMember,
 
 	if (writeResult.modifiedCount != 1) {
 		Log.info(`failed to update record ${bountyId} with submitted user  <@${guildMember.user.tag}>`);
-		return guildMember.send({ content: 'Sorry something is not working, our devs are looking into it.' });
+		await guildMember.send({ content: 'Sorry something is not working, our devs are looking into it.' }).catch(Log.error);
+		return;
 	}
 
 	Log.info(`${bountyId} bounty submitted by ${guildMember.user.tag}`);
@@ -74,9 +77,10 @@ export const submitBountyForValidId = async (guildMember: GuildMember,
 	
 	const bountyUrl = envUrls.BOUNTY_BOARD_URL + dbBountyResult._id;
 	const createdByUser: GuildMember = await guildMember.guild.members.fetch(dbBountyResult.createdBy.discordId);
-	await createdByUser.send({ content: `Please reach out to <@${guildMember.user.id}>. They are ready for bounty review ${bountyUrl}` });
+	await createdByUser.send({ content: `Please reach out to <@${guildMember.user.id}>. They are ready for bounty review ${bountyUrl}` }).catch(Log.error);
 
-	return guildMember.send({ content: `Bounty in review! Expect a message from <@${dbBountyResult.createdBy.discordId}>` });
+	await guildMember.send({ content: `Bounty in review! Expect a message from <@${dbBountyResult.createdBy.discordId}>` }).catch(Log.error);
+	return;
 };
 
 export const submitBountyMessage = async (guildMember: GuildMember, bountyMessageId: string, message?: Message): Promise<any> => {

@@ -4,6 +4,7 @@
 
 1. Remove datadog tracer
 2. Add more phrases and fix grammar and add typing feature
+3. Enhance stability
 
 ## 1.2.0-RELEASE (2021-11-30)
 

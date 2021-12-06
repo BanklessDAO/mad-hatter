@@ -55,6 +55,6 @@ export default async (guildMember: GuildMember, date: number, description: strin
 		},
 	});
 	
-	await guildMember.send(`Timecard finished at ${dayjs(date).format()}`);
+	await guildMember.send(`Timecard finished at ${dayjs(date).format()}`).catch(Log.error);
 	return updateTimecardResult;
 };

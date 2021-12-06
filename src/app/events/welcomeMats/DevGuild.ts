@@ -2,7 +2,7 @@ import { GuildMember, MessageEmbed } from 'discord.js';
 import { Client } from '@notionhq/client';
 import notionPageRefs from '../../service/notion/NotionGuildPages';
 import { notionQueue } from '../../service/notion/NotionQueue';
-import { LogUtils } from '../../utils/Log';
+import Log, { LogUtils } from '../../utils/Log';
 
 const notion = new Client({ auth: process.env.NOTION_TOKEN });
 
@@ -100,5 +100,6 @@ export default async function sendGuildWelcomeMessage(guildMember: GuildMember):
 		.setColor(0xF1BD1B)
 		.setDescription(message);
 
-	return guildMember.send({ embeds: [embed] });
+	await guildMember.send({ embeds: [embed] }).catch(Log.error);
+	return;
 }

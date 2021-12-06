@@ -5,6 +5,7 @@ import { Timecard } from '../../types/timecard.ts/Timecard';
 import dayjs from 'dayjs';
 import ValidationError from '../../errors/ValidationError';
 import MongoDbUtils from '../../utils/MongoDbUtils';
+import Log from '../../utils/Log';
 
 export default async (guildMember: GuildMember, date: number): Promise<any> => {
 	if (guildMember.user.id === null) {
@@ -31,12 +32,12 @@ export default async (guildMember: GuildMember, date: number): Promise<any> => {
 	});
 
 	if (activeTimecard) {
-		await guildMember.send('You already have an active timecard. Close out the active timecard with /timecard checkout then start a new one.');
+		await guildMember.send('You already have an active timecard. Close out the active timecard with /timecard checkout then start a new one.').catch(Log.error);
 		return 'already checked in';
 	}
 
 	const dbCheckin = await timecardDb.insertOne(timecard);
-	await guildMember.send(`Timecard started at ${dayjs(date).format()}`);
+	await guildMember.send(`Timecard started at ${dayjs(date).format()}`).catch(Log.error);
 	return dbCheckin;
 };
 

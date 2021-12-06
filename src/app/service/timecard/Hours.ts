@@ -20,8 +20,9 @@ export default async (guildMember: GuildMember): Promise<any> => {
 	const numberOfTimeCards: number = await completedTimeCards.count();
 	
 	if (numberOfTimeCards === 0) {
-		guildMember.send('No timecards found');
-		return 'No timecards found';
+		await guildMember.send('No timecards found').catch(Log.error);
+		Log.debug('no time card found');
+		return;
 	}
 	
 	const listOfTimeCards = await sendMultipleMessages(guildMember, completedTimeCards);
@@ -42,7 +43,7 @@ const sendMultipleMessages = async (guildMember: GuildMember, dbRecords: Cursor)
 		const messageOptions: MessageEmbedOptions = generateEmbedMessage(record);
 		listOfTimecards.push(messageOptions);
 	}
-	await (guildMember.send({ embeds: listOfTimecards }));
+	await guildMember.send({ embeds: listOfTimecards }).catch(Log.error);
 	return listOfTimecards;
 };
 

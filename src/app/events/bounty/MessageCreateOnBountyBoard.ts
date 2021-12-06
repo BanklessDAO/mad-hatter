@@ -33,8 +33,10 @@ export default async (message: Message): Promise<any> => {
 
 	if (writeResult.modifiedCount != 1) {
 		Log.error(`failed to update record ${bountyId} for user <@${guildMember.user.id}>`);
-		return guildMember.send({ content: 'Sorry something is not working, our devs are looking into it.' });
+		await guildMember.send({ content: 'Sorry something is not working, our devs are looking into it.' }).catch(Log.error);
+		return;
 	}
 
-	return guildMember.send({ content: `Bounty published to #🧀-bounty-board and the website! ${envUrls.BOUNTY_BOARD_URL}${bountyId}` });
+	await guildMember.send({ content: `Bounty published to #🧀-bounty-board and the website! ${envUrls.BOUNTY_BOARD_URL}${bountyId}` }).catch(Log.error);
+	return;
 };

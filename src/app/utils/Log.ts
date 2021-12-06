@@ -113,7 +113,7 @@ export const LogUtils = {
 		});
 	},
 	
-	logError(message: string, error: Error, guildId?: string): void {
+	logError(message: string, error?: Error, guildId?: string): void {
 		if (!error) {
 			Log.error(message);
 			return;
